@@ -1,0 +1,186 @@
+
+  {% block stylesheetsForConges %}
+<link href="{{ asset('css/monstyle.css ') }}" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="{{ asset('bundles/framework/css/style.css') }}" />
+<link rel="stylesheet" type="text/css" href="{{ asset('bundles/framework/css/ct-paper.css') }}" />
+<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+<script src="//code.jquery.com/jquery-1.10.2.js"></script>
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<link rel="stylesheet" href="/resources/demos/style.css">
+{% endblock %}
+
+  <script>
+  $(function() {
+    $( "#form_debut" ).datepicker();
+     $( "#form_fin" ).datepicker();
+  });
+
+
+  jQuery(function($){
+               $('.month').hide();
+               $('.month:first').show();
+               $('.months a:first').addClass('active');
+               var current = 1;
+               $('.months a').click(function(){
+                    var month = $(this).attr('id').replace('linkMonth','');
+                    if(month != current){
+                        $('#month'+current).slideUp();
+                        $('#month'+month).slideDown();
+                        $('.months a').removeClass('active');
+                        $('.months a#linkMonth'+month).addClass('active');
+                        current = month;
+                    }
+                    return false;
+               });
+            });
+
+ function anneenow(){	var date = new Date();
+	var annee = date.getYear();
+    if(annee<=200)
+    {
+        annee += 1900;
+    }
+	document.write('<div class="year">'+annee+'</div>');}
+
+  function mois(){
+   var mois = new Array('Jan','Fév','Mar','Avr','Mai','Jui','Jui','Aoû','Sep','Oct','Nov','Déc');
+	for(var i=0;i<12;i++){
+  		document.write( '<li><a href="#" id="linkMonth'+(i+1)+'">'+mois[i]+'</a>');
+	}
+  }
+
+function jour(){
+	var jour=new Array('Lun','Mar','Mer','Jeu','Ven','Sam','Dim');
+	for(var i=0;i<7;i++){
+	document.write('<th>'+jour[i]+'</th>' );
+}}
+
+  function date(){
+	var jour=new Array('Ven','Sam','Dim','Lun','Mar','Mer','Jeu');
+	var jour1=new Array('Sam','Dim','Lun','Mar','Mer','Jeu','Ven');
+	var jour2=new Array('Dim','Lun','Mar','Mer','Jeu','Ven','Sam');
+	var jour3=new Array('Lun','Mar','Mer','Jeu','Ven','Sam','Dim');
+	var jour4=new Array('Mar','Mer','Jeu','Ven','Sam','Dim','Lun');
+	var jour5=new Array('Mer','Jeu','Ven','Sam','Dim','Lun','Mar');
+	var jour6=new Array('Jeu','Ven','Sam','Dim','Lun','Mar','Mer');
+	var mois = new Array('Jan','Fév','Mar','Avr','Mai','Jui','Jui','Aoû','Sep','Oct','Nov','Déc');
+    var jours_dans_moi = new Array(31,28,31,30,31,30,31,31,30,31,30,31);
+	var i=0;
+	var j=1;
+	var p=0;
+        var colspan=0;
+
+	while(i<12){
+	  for(var k=p;k<7;k++){
+		colspan++;
+		if(jour[k]=="Dim"){
+			break;
+		}
+	}
+	colspan=7-colspan;
+	  document.write('<div class="month relative" id="month'+(i+1)+'"> <table> <thead><tr></tr></thead><tbody><tr>')
+	if(colspan!=0){
+	document.write('<td colspan='+colspan+' class="padding"></td>');}
+	colspan=0;
+	 while(j<=jours_dans_moi[i]){
+		for(var k=p;k<7;k++){
+		if(j<=jours_dans_moi[i]){
+		document.write('<td><div class="relative"> <div class="day">'+j+'</div> </div> <div class="daytitle">'+jour[k]+" "+j+" "+mois[i]+'</div> <ul class="events">');
+		if((i==4)&&(j==3)){
+
+		document.write('<li>début: test</li>');
+		}
+		document.write('</ul> </td>');
+
+
+		j++;
+		 if(jour[k]=="Dim"){
+			document.write('</tr><tr> ');
+			}
+		 }
+		 else{
+
+		   p=k;
+
+		   break;
+		}
+		}
+	 }
+	if(jour[p-1]!="Dim"){
+	 document.write('</td><td colspan="6" class="padding"></td>');}
+	document.write('</tr></tbody> </table> </div>');
+	j=1;
+
+		   if(jour[p]=="Ven"){
+			jour=jour;
+			}
+		 else if(jour[p]=="Sam"){
+			jour=jour1;
+			}
+		else if(jour[p]=="Dim"){
+			jour=jour2;
+			}
+		else if(jour[p]=="Lun"){
+			jour=jour3;
+			}
+		else if(jour[p]=="Mar"){
+			jour=jour4;
+			}
+		else if(jour[p]=="Mer"){
+			jour=jour5;
+			}
+		else if(jour[p]=="Jeu"){
+			jour=jour6;
+			}
+	p=0;
+	i++;}
+	}
+
+
+
+  </script>
+
+<div id="MesCongés">
+
+ <h1>Poser vos conges</h1>
+
+ {{ form_start(f)}}
+  {{ form_widget(f)}}
+  {{ form_end(f)}}
+  <a href="#SalarieCongés" class="btn btn-danger" style="display:block; margin-left:auto; margin-right:auto">▼</a>
+</div>
+<div>
+
+<div id="SalarieCongés">
+<a href="#MesCongés" class="btn btn-danger" style="display:block; margin-left:auto; margin-right:auto">▲</a>
+<h1> Validateur de conges</h1>
+     <p>
+		  {{ form_start(form)}}
+  		{{ form_widget(form)}}
+  		{{ form_end(form)}}
+     </p>
+      <div class="calendar">
+       	<div class="periods">
+           <script type="text/javascript">
+        	anneenow();
+    	   </script>
+            <div class="months">
+                <ul>
+		   <script type="text/javascript">
+        		mois();
+    	  	 </script>
+		</ul>
+		</div>
+            <div class="clear"></div>
+			  <script type="text/javascript">
+        			date();
+    	  	 	</script>
+		     </div>
+                    </div>
+        <div class="clear"></div>
+
+</div>
+{{ form_start(form)}}
+{{ form_widget(form)}}
+{{ form_end(form)}}
+</div>

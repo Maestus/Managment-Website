@@ -1,0 +1,440 @@
+<!-- /app/Resources/views/base.html.twig -->
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+
+    <!-- Latest compiled and minified CSS -->
+    <link href="{{ asset('bundles/framework/bootstrap3/css/bootstrap.css') }}" rel="stylesheet">
+
+
+    {% block stylesheets %}
+      {% block stylesheetsForConges %}
+      {% endblock %}
+      <link href="{{ asset('bundles/framework/css/dashboard.css') }}" rel="stylesheet">
+    {% endblock %}
+
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="{{asset('bundles/framework/js/jquery.min.js')}}"></script>
+
+
+
+    <title>{% block title %}Symfony{% endblock %}</title>
+
+
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+<div class="container-fluid">
+    <div class="col-md-2 sidebar">
+        <ul class="nav nav-sidebar">
+            <li><div id="onglet1" onclick="show('#onglet1')" ><p>{{name}} {{prenom}}</p><p id="image"><img alt="photo identite" src="bundles/framework/images/identite.png"/></p></div></li>
+            <li><div id="onglet2" class="option" onclick="show('#onglet2')"><p>Congé</p><div id="descriptionOnglet1">
+              <p>Module de gestion de congé.</p>
+              <p>Vous avez à diposition un formulaire qui vous permettra de soumettre vos congés à votre superieur hierarchique.</p>
+              <p>Si vous gerez un ou plusieurs salariés vous pourrez approuver ou desapprouver leurs congés.</p>
+            </div></div></li>
+            <li><div id="onglet3" class="option" onclick="show('#onglet3')"><p>bulletins de paye</p><div id="descriptionOnglet2"><p>Module de generation de Bulletin de paie,</p>
+              <p>saisir une adresse mail d'un employé puis appuyer sur 'Trouver l'employe'.</p>
+              <p>Vous aurez alors accés à ses cotisations et à son salaire que vous pourrez modifiés.</div></div></li>
+        </ul>
+    </div>
+  <div class="col-md-10 col-md-offset-2 main">
+      <div id="SheetGenerator">
+        {{ render(controller('IndexBulletinBundle:Default:index',{ 'id': id })) }}
+      </div>
+      <div id="Congé">
+        {{ render(controller('OCGenerateurCongeBundle:Default:index',{ 'id': id })) }}
+      </div>
+    <h1 class="page-header">PROFILE</h1>
+    <div>
+      {% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}
+          {{ 'layout.logged_in_as'|trans({'%username%': app.user.username}, 'FOSUserBundle') }} |
+          <a href="{{ path('fos_user_security_logout') }}">
+              {{ 'layout.logout'|trans({}, 'FOSUserBundle') }}
+          </a>
+      {% else %}
+          <a href="{{ path('fos_user_security_login') }}">{{ 'layout.login'|trans({}, 'FOSUserBundle') }}</a>
+      {% endif %}
+      <hr>
+      <a href="{{ path('fos_user_change_password')}}">Changer votre mot de passe</a>
+    </div>
+  </div>
+</div>
+<footer>
+  <nav class="navbar navbar-light navbar-fixed-bottom">
+      <div id="navbar">
+          <form name="search" id="form" class="pull-xs-center">
+              <input name="search" id="search" type="text" autocomplete="off" class="form-control" placeholder="Search..." onclick="showsearchdiv()"
+              oninput="hidesearchdiv()">
+          </form>
+          <div id="completion"></div>
+          <div id="resultat" class="table-responsive">
+            <div id="proposition"></div>
+            <table id="employes" class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Sexe</th>
+                  <th>Nom</th>
+                  <th>Prenom</th>
+                  <th>Date d'entrée</th>
+                  <th>Superieur hierarchique</th>
+                </tr>
+              </thead>
+              <tbody id="tuple"></tbody>
+            </table>
+          </div>
+      </div>
+  </nav>
+</footer>
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+{% block javascripts %}
+
+
+<script>
+
+
+  var reSearch = [];
+  var results = document.getElementById('completion');
+  var tuple =  document.getElementById('tuple');
+  var divres = document.getElementById('resultat');
+  var divprop = document.getElementById('proposition');
+
+  var searchElement = document.getElementById('search'),
+        selectedResult = -1, // Permet de savoir quel résultat est sélectionné : -1 signifie "aucune sélection"
+        previousRequest, // On stocke notre précédente requête dans cette variable
+        previousValue = searchElement.value; // On fait de même avec la précédente valeur
+
+
+
+  var o1ishide = false;
+  var o2ishide = true;
+  var o3ishide = true;
+  var isactive;
+  var imageToAttach;
+
+  function show(id) {
+      if(id == '#onglet2' && o2ishide){
+          o2ishide = false;
+          hide('#onglet1');
+          hide('#onglet3');
+
+          $('#onglet3').animate({
+              marginTop: '+=200px'
+          }, 500);
+          $(id).find('#descriptionOnglet1').animate({
+              height: '200px',
+          }, 500);
+
+          $(id).find('#descriptionOnglet1').css({
+              'display':'block'
+          });
+          $('#Congé').css({
+              display:"block"
+          });
+          $('#Congé').css({
+              overflow:"auto"
+          });
+          $('#Congé').css({
+              'backgroundColor':'rgba(75, 40, 40, 0.44)'
+          });
+          $('#Congé').animate({
+              height : "500px",
+          },500);
+
+
+      }
+      if(id == '#onglet1' && o1ishide){
+        o1ishide = false;
+        hide('#onglet2');
+        hide('#onglet3');
+          if(imageToAttach != null){
+              $(imageToAttach).appendTo($(id).find('#image'));
+              imageToAttach = null;
+              $(id).animate({
+                  height:'270px'
+              },500);
+          }
+
+      }
+      if(id == '#onglet3' && o3ishide){
+
+          o3ishide = false;
+          hide('#onglet1');
+          hide('#onglet2');
+
+          $(id).find('#descriptionOnglet2').animate({
+              height: '200px',
+          },500);
+
+          $(id).find('#descriptionOnglet2').css({
+              'display':'block'
+          });
+          $('#SheetGenerator').animate({
+              height : "500px",
+          },500);
+          $('#SheetGenerator').css({
+              'backgroundColor':'rgba(75, 40, 40, 0.44)'
+          });
+          $('#SheetGenerator').css({
+              display:"block"
+          });
+      }
+  }
+
+
+  function hide(id) {
+      if(id == '#onglet1' && o1ishide == false){
+          if(imageToAttach == null){
+              $(id).animate({
+                  height:'100px'
+              }, 500);
+              imageToAttach = $(id).find('img').detach();
+          }
+          o1ishide = true;
+      }
+      if(id == '#onglet2' && o2ishide == false){
+          $(id).find('#descriptionOnglet1').css({
+              height:"0",
+              display:"none"
+          });
+          $('#onglet3').animate({
+              marginTop: '-=200px'
+          }, 500);
+          $('#Congé').animate({
+              height:'0',
+          },500);
+          $('#Congé').css({
+              display:"none"
+          });
+          o2ishide = true;
+      }
+      if(id == '#onglet3' && o3ishide == false){
+          $(id).find('#descriptionOnglet2').css({
+              height:"0",
+              display:"none"
+          });
+          $('#SheetGenerator').animate({
+              height:'0',
+          },500);
+          $('#SheetGenerator').css({
+              display:"none"
+          });
+          o3ishide = true;
+      }
+
+  }
+  function showsearchdiv(){
+      var len = window.innerHeight;
+      len = len - len/10;
+      isactive = true;
+      $('#resultat').animate({
+          height:len
+      }, 500);
+  }
+  function hidesearchdiv(){
+      $('#employes').css({
+        'display':'none'
+      });
+      if(document.forms['search'].search.value == ""){
+          $('#completion').css({
+            'display':'none'
+          });
+          reSearch = [];
+          $('#resultat').animate({
+              height:"0em"
+          },500);
+          isactive = false;
+      }if(!isactive){
+          if(document.forms['search'].search.value != "")
+              showsearchdiv();
+      }if(isactive){
+          if(document.forms['search'].search.value != "")
+              searchInDataBase(document.forms['search'].search.value);
+      }
+  }
+
+  function searchInDataBase(keyword){
+      reSearch = [];
+      {%for user in users%}
+        var name = "{{user['nom']}}";
+        var prenom = "{{user['prenom']}}";
+        var str = name+" "+prenom;
+
+        if(str.indexOf(keyword) == 0){
+          reSearch.push(str);
+        }
+      {% endfor %}
+      var joinres = reSearch.join(",");
+      displayResults(joinres);
+  }
+
+
+    function displayResults(response) { // Affiche les résultats d'une requête
+          if(response.length == 0){
+            $('#completion').css({
+              'display':'none'
+              });
+          }
+          if (response.length > 0) { // On ne modifie les résultats que si on en a obtenu
+              $('#completion').css({
+                'display':'block'
+              });
+              response = response.split(',');
+              console.log(response);
+              limit = response.length < 10 ? response.length : 10;
+              $('#completion').empty();
+              for (var i = 0, div ; i < limit ; i++) {
+                  div = results.appendChild(document.createElement('div'));
+                  div.innerHTML = response[i];
+                  div.addEventListener('click', function(e) {
+                      chooseResult(e.target);
+                  });
+              }
+          }
+      }
+
+    function chooseResult(result) { // Choisi un des résultats d'une requête et gère tout ce qui y est attaché
+        searchElement.value = previousValue = result.innerHTML; // On change le contenu du champ de recherche et on enregistre en tant que précédente valeur
+        results.style.display = 'none'; // On cache les résultats
+        results.className = ''; // On supprime l'effet de focus
+        selectedResult = -1; // On remet la sélection à "zéro"
+        searchElement.focus(); // Si le résultat a été choisi par le biais d'un clique alors le focus est perdu, donc on le réattribue
+    }
+
+    $('#form').on('keyup keypress', function(e) {
+      tuple.innerHTML = "";
+      var keyCode = e.keyCode || e.which;
+      if (keyCode === 13) {
+        if(searchElement.value.length > 0){
+          $('#proposition').css({
+            'display':'none'
+          });
+          var res = searchElement.value;
+          results.style.display = 'none';
+          e.preventDefault();
+          var i = 0;
+          {%for user in users%}
+            var name = "{{user['nom']}}";
+            var prenom = "{{user['prenom']}}";
+            var str = name+" "+prenom;
+            if(str == res){
+                i += 1;
+                var sexe = "{{user['sexe']}}";
+                var date = "{{user['dateentre']|date('Y-m-d')}}";
+                tr = tuple.appendChild(document.createElement('tr'));
+                div = tr.appendChild(document.createElement('td'));
+                div.innerHTML = sexe;
+                div = tr.appendChild(document.createElement('td'));
+                div.innerHTML = name;
+                div = tr.appendChild(document.createElement('td'));
+                div.innerHTML = prenom;
+                div = tr.appendChild(document.createElement('td'));
+                div.innerHTML = date;
+                div = tr.appendChild(document.createElement('td'));
+                div.innerHTML = getSalarie("{{user['superieurhierarchique']}}");
+            }
+          {% endfor %}
+          if(i == 0){
+            divprop.innerHTML = "";
+            var value = 10;
+            var reStr = "";
+            {%for user in users%}
+                var nom = "{{user['nom']}}";
+                var prenom = "{{user['prenom']}}";
+                var str = nom + " " + prenom;
+                var tmp = distance(str,res);
+                if(tmp < value){
+                  value = tmp;
+                  reStr = str;
+                }
+            {% endfor %}
+            if(reStr != ""){
+              divprop.innerHTML = "Essayez avec cette orthographe : "+reStr;
+              $('#proposition').css({
+                'display':'block'
+              });
+            }
+          }
+          else{
+            $('#employes').css({
+              'display':'inline-block'
+            });
+          }
+        }
+      }
+    });
+
+    function getSalarie(id){
+      {%for user in users%}
+        var identity = "{{user['id']}}";
+        if(identity == id){
+            var nom = "{{user['nom']}}";
+            var prenom = "{{user['prenom']}}";
+            var str = nom + " " + prenom;
+            return str;
+        }
+      {% endfor %}
+      return "pas de superieur hierarchique defini";
+    }
+
+    function distance(a,b){
+      var matrix = [];
+
+      // increment along the first column of each row
+      var i;
+      for(i = 0; i <= b.length; i++){
+        matrix[i] = [i];
+      }
+
+      // increment each column in the first row
+      var j;
+      for(j = 0; j <= a.length; j++){
+        matrix[0][j] = j;
+      }
+
+      // Fill in the rest of the matrix
+      for(i = 1; i <= b.length; i++){
+        for(j = 1; j <= a.length; j++){
+          if(b.charAt(i-1) == a.charAt(j-1)){
+            matrix[i][j] = matrix[i-1][j-1];
+          } else {
+            matrix[i][j] = Math.min(matrix[i-1][j-1] + 1, // substitution
+                                    Math.min(matrix[i][j-1] + 1, // insertion
+                                             matrix[i-1][j] + 1)); // deletion
+          }
+        }
+      }
+
+      return matrix[b.length][a.length];
+    }
+
+
+</script>
+
+{% endblock %}
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+</body>
+</html>

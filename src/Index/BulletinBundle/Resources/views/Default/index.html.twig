@@ -1,0 +1,198 @@
+<div class="jumbotron">
+  <h1 style="font-size: 3em; margin-bottom: 5%; text-align:center">Création de bulletin de paie</h1>
+  <form id="employe" name="employe" action="#">
+
+    <div class="form-group">
+      <label for="inputEmail3" class="col-sm-2 form-control-label">Email:</label>
+      <div style="padding-right:1%" class="col-sm-8">
+        <input name="email" type="email" class="form-control" id="email" placeholder="Adresse mail">
+      </div>
+      <a onclick="isEmploye()" style="padding-left: 0px; padding-right: 0px; width: 13%;" class="btn btn-primary bouton">Trouver</a>
+    </div>
+  </form>
+
+  <form id="Cotisation" method="post" action="generate.php">
+
+    <div class="form-group">
+
+      <div class="col-sm-4 form-group">
+        <label for="SelectCivilité" class="col-sm-4">Civilité:</label>
+        <div class="col-sm-8">
+          <select name="civilité" id="Civilité" class="form-control selectpicker">
+            <option value="M.">Monsieur</option>
+            <option value="Mme.">Madame</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="col-sm-4 form-group">
+        <label for="inputNom" class="col-sm-4 form-control-label">Nom:</label>
+        <div class="col-sm-8">
+          <input name="nom" type="text" class="form-control" id="nom" placeholder="Nom">
+        </div>
+      </div>
+
+      <div class="col-sm-4 form-group">
+        <label for="inputPrenom" class="col-sm-4 form-control-label">Prenom:</label>
+        <div class="col-sm-8">
+          <input name="prenom" type="text" class="form-control" id="prenom" placeholder="Prenom">
+        </div>
+      </div>
+
+      <div class="col-sm-4 form-group">
+        <label for="inputsalaire" class="col-sm-4 form-control-label">Salaire</label>
+        <div class="col-sm-8">
+          <input name="salaire" type="number" step="any" class="form-control" id="salaire" placeholder="0000">
+        </div>
+      </div>
+
+  </div>
+
+
+  <div class="form-group">
+    <div class="col-sm-4 form-group">
+      <label for="inputCSG" class="col-sm-4 form-control-label">CSG:</label>
+      <div class="col-sm-8">
+        <input name="CSG" type="number" step="any" class="form-control" id="CSG" placeholder="0,00%">
+      </div>
+    </div>
+
+    <div class="col-sm-4 form-group">
+      <label for="inputCRDS" class="col-sm-4 form-control-label">CRDS:</label>
+      <div class="col-sm-8">
+        <input name="CRDS" type="number" step="any" class="form-control" id="CRDS" placeholder="0,00%">
+      </div>
+    </div>
+    <div class="col-sm-4 form-group">
+      <label for="inputSécu" class="col-sm-4 form-control-label">Sécu:</label>
+      <div class="col-sm-8">
+        <input name="Secu" type="number" step="any" class="form-control" id="Secu" placeholder="0,00%">
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <div class="col-sm-4 form-group">
+      <label for="inputASSEDIC" class="col-sm-4 form-control-label">ASSEDIC:</label>
+      <div class="col-sm-8">
+        <input name="ASSEDIC" type="number" step="any" class="form-control" id="ASSEDIC" placeholder="0,00%">
+      </div>
+    </div>
+
+    <div class="col-sm-4 form-group">
+      <label for="inputRetraite" class="col-sm-4 form-control-label">retraite:</label>
+      <div class="col-sm-8">
+        <input name="retraite" type="number" step="any" class="form-control" id="retraite" placeholder="0,00%">
+      </div>
+    </div>
+    <div class="col-sm-4 form-group">
+      <label for="inputAGFF" class="col-sm-4 form-control-label">AGFF:</label>
+      <div class="col-sm-8">
+        <input name="AGFF" type="number" step="any" class="form-control" id="AGFF" placeholder="0,00%">
+      </div>
+    </div>
+  </div>
+
+  <button style="margin-top: 6%; margin-right: 25%; margin-left: 6%;" type="submit" class="btn btn-primary">Generer bulletin de paie</button>
+
+  </form>
+  {% block javascript %}
+
+    <script>
+
+    $("#employe").ready(function() {
+      $(window).keydown(function(event){
+        if(event.keyCode == 13) {
+          event.preventDefault();
+          return false;
+        }
+      });
+    });
+
+      function isEmploye(){
+        var estEmploye = false;
+        var isCadre = false;
+        var keyword = document.forms['employe'].email.value;
+        {%for compte in comptes%}
+          var email = "{{compte['email']}}";
+          if(email.indexOf(keyword) == 0){
+            estEmploye = true;
+            var id = parseInt("{{compte['id']}}")+2002;
+            console.log(id);
+            isCadre = Cadre(id);
+            if(isCadre)
+              cadreCotisation(id);
+            else{
+              noncadreCotisation(id);
+            }
+            $('#Cotisation').css({
+              'display':'block'
+            });
+          }
+        {% endfor %}
+        if(!estEmploye){
+          $('#Cotisation').css({
+            'display':'none'
+          });
+        }
+      }
+
+      function Cadre(id){
+        {%for user in users%}
+          if("{{user['id']}}" == id){
+            if("{{user['sexe']}}" == "F")
+              $('#Civilité option[value="Mme."]').prop('selected', true);
+            else
+              $('#Civilité option[value="M."]').prop('selected', true);
+            $('#nom').val("{{user['nom']}}");
+            $('#prenom').val("{{user['prenom']}}");
+            $('#salaire').val("{{user['salaire']}}");
+          }
+        {% endfor %}
+        {%for user in users%}
+          var idSup = "{{user['superieurhierarchique']}}";
+          if(idSup == id){
+            return true;
+          }
+        {% endfor %}
+        return false;
+      }
+
+      function cadreCotisation(id){
+        $('#CSG').val(7.50);
+        $('#CRDS').val(0.50);
+        $('#Secu').val(2.55);
+        $('#ASSEDIC').val(2.40);
+        var salaire = $('#salaire').val()
+        if(parseInt(salaire) <= 3170)
+          $('#retraite').val(3.10);
+        if(parseInt(salaire) < 12680 && parseInt(salaire) <= 25360)
+          $('#retraite').val(7.80);
+        if(parseInt(salaire) > 3170 && parseInt(salaire) <= 12680)
+          $('#retraite').val(7.80);
+        if(parseInt(salaire) <= 3170)
+          $('#AGFF').val(0.80);
+        if(parseInt(salaire) > 3170 && parseInt(salaire) <= 12680)
+          $('#AGFF').val(0.90);
+      }
+
+      function noncadreCotisation(id){
+        $('#CSG').val(7.50);
+        $('#CRDS').val(0.50);
+        $('#Secu').val(9.40);
+        $('#ASSEDIC').val(2.40);
+        var salaire = $('#salaire').val()
+        if(parseInt(salaire) <= 3170)
+          $('#retraite').val(3.10);
+        if(parseInt(salaire) > 3170 && parseInt(salaire) <= 9510)
+          $('#retraite').val(8.10);
+        if(parseInt(salaire) <= 3170)
+          $('#AGFF').val(0.80);
+        if(parseInt(salaire) > 3170 && parseInt(salaire) <= 9510)
+          $('#AGFF').val(0.90);
+      }
+
+    </script>
+
+  {% endblock %}
+</div>

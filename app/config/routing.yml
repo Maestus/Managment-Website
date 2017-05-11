@@ -1,0 +1,20 @@
+oc_generateur_conge:
+    resource: "@OCGenerateurCongeBundle/Resources/config/routing.yml"
+    prefix:   /
+
+app:
+    resource: "@AppBundle/Controller/"
+    #resource: "@FOSUserBundle/Resources/config/routing/security.xml"
+    type:     annotation
+
+index_bulletin:
+    resource: "@IndexBulletinBundle/Resources/config/routing.yml"
+
+index_index:
+    resource: "@IndexIndexBundle/Resources/config/routing.yml"
+
+fos_user_security:
+    resource: "@FOSUserBundle/Resources/config/routing/security.xml"
+
+fos_user_change_password:
+    resource: "@FOSUserBundle/Resources/config/routing/change_password.xml"

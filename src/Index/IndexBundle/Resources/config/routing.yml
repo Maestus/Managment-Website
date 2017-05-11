@@ -1,0 +1,3 @@
+index_index_homepage:
+    path:     /home
+    defaults: { _controller: IndexIndexBundle:Default:index }

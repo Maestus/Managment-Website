@@ -1,0 +1,8 @@
+index_bulletin_homepage:
+    path:     /form
+    defaults: { _controller: IndexBulletinBundle:Default:index }
+
+generate_html:
+    path: /generate.php
+    defaults: { _controller: IndexBulletinBundle:Default:generate_pdf }
+    methods:  POST

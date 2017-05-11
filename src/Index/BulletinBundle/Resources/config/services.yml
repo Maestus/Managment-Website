@@ -1,0 +1,4 @@
+services:
+#    index_bulletin.example:
+#        class: Index\BulletinBundle\Example
+#        arguments: ["@service_id", "plain_value", %parameter%]

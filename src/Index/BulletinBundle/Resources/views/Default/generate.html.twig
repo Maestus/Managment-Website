@@ -1,0 +1,141 @@
+<style type="text/css">
+    img{
+	position: absolute;
+    }
+    div{
+      text-align: center;
+    }
+
+    .date{
+      margin-left: 450px;
+    }
+
+    .salaire{
+      text-align: left;
+      margin: 10px;
+      padding: 5px;
+      border: 2px;
+      width: 600px;
+      margin-left: 70px;
+    }
+    .salaire p{
+      font-weight: bold;
+      text-align: right;
+    }
+    #cotisation{
+      margin-top: 20px;
+      margin-left: 70px;
+      margin-right: 150px;
+    }
+
+    #cotisation div{
+      font-weight: bold;
+      margin-right: 150px;
+      margin-top:20px;
+      margin-bottom: 20px;
+    }
+
+    h1{
+        font-size: 30px;
+        margin: 25px;
+    }
+    li{
+    font-size: 10pt;
+    }
+    .employe{
+	     margin-right: 160px;
+       margin-top: 50px;
+       margin-bottom: 50px;
+       margin-left: 50px;
+    }
+
+    .employe p{
+        text-align: left;
+        font-size: 15px;
+        margin: 0;
+        margin-left:20px;
+    }
+    input, textarea, select{
+        border: dashed 1mm red;
+        background: #FCC;
+        color: #400;
+        text-align: left;
+        font-size: 11pt;
+    }
+
+
+
+</style>
+<page>
+  <!--<img style="float:left" alt="logo" src="bundles/framework/images/identite.png" />-->
+    <div><h1>Bulletin de paie</h1></div>
+    <div class="date"><p style="font-weight: bold; font-size:1em">Paie du : {{ "now" | date("m/Y")}}</p></div>
+    <div class="date"><p style="font-weight: bold; font-size:1em">Paiement le : 01/{{ "now" | date("m/Y")}}</p></div>
+    <br>
+    <table>
+        <tr>
+            <td>
+                <div class="employe" >
+                    <p>Symfony</p>
+                    <p>36 Avenue Ludwig van Beethoven</p>
+                    <p>75012 Paris</p>
+                </div>
+            </td>
+            <td>
+                <div class="employe">
+                    <p>{{post['civilité']}} {{post['nom']}} {{post['prenom']}}</p>
+                    <p>#~#~#~#~#~#~#~#~#</p>
+                    <p>#~#~#~#~#~#</p>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <table id="cotisation" border="1">
+    <thead>
+      <tr>
+          <th><div>Libellés</div></th>
+          <th><div>Taux</div></th>
+          <th><div>Retenues</div></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><p><div>CSG</div></p></td>
+        <td>{{post['CSG']}} %</td>
+        <td>{{((post['CSG']*post['salaire'])/100) |round(1, 'floor') }} €</td>
+      </tr>
+      <tr>
+        <td><div>CRDS</div></td>
+        <td>{{post['CRDS']}} %</td>
+        <td>{{((post['CRDS']*post['salaire'])/100) |number_format(2, '.', ',')}} €</td>
+      </tr>
+      <tr>
+        <td><div>Secu</div></td>
+        <td>{{post['Secu']}} %</td>
+        <td>{{((post['Secu']*post['salaire'])/100) |number_format(2, '.', ',') }} €</td>
+      </tr>
+      <tr>
+        <td><div>ASSEDIC</div></td>
+        <td>{{post['ASSEDIC']}} %</td>
+        <td>{{((post['ASSEDIC']*post['salaire'])/100) |number_format(2, '.', ',')}} €</td>
+      </tr>
+      <tr>
+        <td><div>Retraite</div></td>
+        <td>{{post['retraite']}} %</td>
+        <td>{{((post['retraite']*post['salaire'])/100) |number_format(2, '.', ',') }} €</td>
+      </tr>
+      <tr>
+        <td><div>AGFF</div></td>
+        <td>{{post['AGFF']}} %</td>
+        <td>{{((post['AGFF']*post['salaire'])/100) |number_format(2, '.', ',') }} €</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="salaire">
+    Salaire brut : <p>{{post['salaire']}} €</p>
+  </div>
+  <div class="salaire">
+    Salaire net : <p>{{(post['salaire']-((post['CSG']*post['salaire'])/100)-((post['CRDS']*post['salaire'])/100)-((post['Secu']*post['salaire'])/100)-((post['ASSEDIC']*post['salaire'])/100)
+    -((post['retraite']*post['salaire'])/100)-((post['AGFF']*post['salaire'])/100)) |number_format(2,',','') }} €</p>
+  </div>
+</page>
